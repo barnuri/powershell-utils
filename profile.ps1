@@ -3,6 +3,8 @@
 # git: https://github.com/barnuri/powershell-utils
 
 function updateProfile() {
+    mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
+    echo $null >> $profile
     $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1).Content
     '' -match '' | out-null # reset regex result
     $profileContent = $($($(cat $profile) ?? "").Split([Environment]::NewLine) -join "`n")
@@ -11,7 +13,6 @@ function updateProfile() {
         $profileContent = $profileContent.Replace($Matches[1], $newProfileContent)
         echo $profileContent > $profile
     } else {
-        mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
         echo "" >> $profile 
         Add-Content $profile $newProfileContent
     }
