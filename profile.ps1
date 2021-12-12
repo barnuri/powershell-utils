@@ -60,7 +60,7 @@ function prompt {
         else {
             Write-Host " ↓$behind " -ForeGroundColor Red -NoNewLine 
             Write-Host "↑$ahead " -ForeGroundColor Cyan -NoNewLine 
-            if ($new -ne 0 || $modify -ne 0 || $deleted -ne 0) {  
+            if ($new -ne 0 -or $modify -ne 0 -or $deleted -ne 0) {  
                 Write-Host "+$new " -ForeGroundColor Green -NoNewLine 
                 Write-Host "±$modify " -ForeGroundColor Cyan -NoNewLine 
                 Write-Host "-$deleted" -ForeGroundColor Red -NoNewLine 
