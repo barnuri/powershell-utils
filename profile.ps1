@@ -5,7 +5,7 @@
 function updateProfile() {
     $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1).Content
     '' -match '' | out-null # reset regex result
-    $profileContent = $($(Get-Content $PROFILE).Split([Environment]::NewLine) -join "`n")
+    $profileContent = $($($(cat $profile) ?? "").Split([Environment]::NewLine) -join "`n")
     $profileContent -match '(\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#[.\s\S]*\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# END Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#)' | out-null
     if($Matches.Count -gt 1) {
         $profileContent = $profileContent.Replace($Matches[1], $newProfileContent)
