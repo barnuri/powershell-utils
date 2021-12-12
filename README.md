@@ -28,10 +28,10 @@ Import-Module PSProfiler
 ## Install 
 ```powershell
 $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1 -Headers @{"Cache-Control"="no-cache"}).Content | iex
-updateProfile
+syncPowershellUtils
 ```
 
 ## Update
 ```powershell
-updateProfile
+syncPowershellUtils
 ```

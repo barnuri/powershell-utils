@@ -2,7 +2,7 @@
 # author : BarNuri
 # git: https://github.com/barnuri/powershell-utils
 
-function updateProfile() {
+function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
     echo $null >> $profile
     $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1 -Headers @{"Cache-Control"="no-cache"}).Content
