@@ -1,4 +1,23 @@
 ################# Profile By BarNuri #################
+# author : BarNuri
+# git: https://github.com/barnuri/powershell-utils
+
+function updateProfile() {
+    $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1).Content
+    '' -match '' | out-null # reset regex result
+    $profileContent = $($(Get-Content $PROFILE).Split([Environment]::NewLine) -join "`n")
+    $profileContent -match '(\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#[.\s\S]*\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# END Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#)' | out-null
+    if($Matches.Count -gt 1) {
+        $profileContent = $profileContent.Replace($Matches[1], $newProfileContent)
+        echo $profileContent > $profile
+    } else {
+        mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
+        echo "" >> $profile 
+        Add-Content $profile $newProfileContent
+    }
+    '' -match '' | out-null # reset regex result
+}
+
 function prompt {
     $host.ui.RawUI.WindowTitle = "Current Folder: $pwd"
     $CmdPromptUser = [Security.Principal.WindowsIdentity]::GetCurrent();
@@ -152,21 +171,5 @@ function openProfile() { code $profile }
 Set-Alias profile openProfile
 function whichFunc($search) { $res=$(Get-Command $search); if($res.Source) { echo $res.Source } else { echo $res } }
 Set-Alias which whichFunc
-
-function updateProfile() {
-    $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1).Content
-    '' -match '' | out-null # reset regex result
-    $profileContent = $($(Get-Content $PROFILE).Split([Environment]::NewLine) -join "`n")
-    $profileContent -match '(\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#[.\s\S]*\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# END Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#)' | out-null
-    if($Matches.Count -gt 1) {
-        $profileContent = $profileContent.Replace($Matches[1], $newProfileContent)
-        echo $profileContent > $profile
-    } else {
-        mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
-        echo "" >> $profile 
-        Add-Content $profile $newProfileContent
-    }
-    '' -match '' | out-null # reset regex result
-}
 
 ################# END Profile By BarNuri #################
