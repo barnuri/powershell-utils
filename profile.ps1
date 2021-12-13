@@ -170,7 +170,7 @@ Set-Alias hostsService "C:\Program Files (x86)\Acrylic DNS Proxy\AcrylicUI.exe"
 
 function openProfile() { code $profile }
 Set-Alias profile openProfile
-function whichFunc($search) { $res=$(Get-Command $search); if($res.Source) { echo $res.Source } else { echo $res } }
+function whichFunc($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
 Set-Alias which whichFunc
 
 ################# END Profile By BarNuri #################
