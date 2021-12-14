@@ -1,7 +1,8 @@
 ################# Profile By BarNuri #################
 # author : ✡ BarNuri ✡
 # git: https://github.com/barnuri/powershell-utils
-# https://coolsymbol.com/
+# symbols - https://coolsymbol.com/
+# PSReadLine -  https://docs.microsoft.com/en-us/powershell/module/psreadline/set-psreadlinekeyhandler?view=powershell-7.2
 
 function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
@@ -61,7 +62,7 @@ function prompt {
                 Write-Host "=" -ForeGroundColor Cyan -NoNewLine
             }
             else {
-                Write-Host "☁️ ↑" -ForeGroundColor yellow -NoNewLine
+                Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
             }
         }
         else {
@@ -80,15 +81,14 @@ function prompt {
 }
 
 Import-Module PSReadLine
-# Set-PSReadLineOption -Colors @{ InlinePrediction = '#9CA3AF'}
-# Set-PSReadLineOption -EditMode Windows
-# Set-PSReadLineOption -PredictionSource HistoryAndPlugin 
-# Set-PSReadlineOption -PredictionViewStyle InlineView
+Set-PSReadLineOption -Colors @{ InlinePrediction = '#9CA3AF'}
+Set-PSReadLineOption -EditMode Windows
+Set-PSReadLineOption -PredictionSource HistoryAndPlugin 
+Set-PSReadlineOption -PredictionViewStyle InlineView
 (Get-PSReadLineOption).ShowToolTips = $True
 (Get-PSReadLineOption).HistoryNoDuplicates = $True
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadlineKeyHandler -Key Ctrl+Spacebar -Function MenuComplete
+Set-PSReadlineKeyHandler -Key Tab -Function AcceptNextSuggestionWord
 
 if (-Not $(Get-Command code -errorAction SilentlyContinue))
 {
