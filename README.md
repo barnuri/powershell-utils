@@ -17,6 +17,12 @@ Install-Module Pansies -AllowClobber
 Install-Module PSReadLine -Force -SkipPublisherCheck -AllowPrerelease
 ```
 
+## Install 
+```powershell
+$(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1 -Headers @{"Cache-Control"="no-cache"}).Content | iex
+syncPowershellUtils
+```
+
 ## Probelms with PSReadLine Installation
 ```powershell
 Get-InstalledModule -Name PSReadLine -AllVersions | Uninstall-Module
@@ -27,11 +33,6 @@ pwsh -NoProfile -NonInteractive -Command "Uninstall-Module PSReadLine"
 Install-Module PSReadLine -Force -SkipPublisherCheck -AllowPrerelease
 ```
 
-## Install 
-```powershell
-$(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1 -Headers @{"Cache-Control"="no-cache"}).Content | iex
-syncPowershellUtils
-```
 
 ## Update
 ```powershell
