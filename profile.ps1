@@ -1,6 +1,7 @@
 ################# Profile By BarNuri #################
-# author : BarNuri
+# author : ✡ BarNuri ✡
 # git: https://github.com/barnuri/powershell-utils
+# https://coolsymbol.com/
 
 function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
@@ -36,8 +37,9 @@ function prompt {
         $firstLine, $statusLines = $lines
         $statusLines += ""
 
-        $firstLine -match '## (.+)\.\.\.origin.+' | out-null
-        $branch=$Matches[1]
+        $firstLine -match '## (.+)' | out-null
+        $isRemoteBranch = $Matches[1].Split(".").Count -gt 1
+        $branch=$Matches[1].Split(".")[0]
         '' -match '' | out-null # reset regex result
 
         $firstLine -match '\[(?:.*)?(?:behind (\d)+)\]' | out-null
@@ -55,7 +57,12 @@ function prompt {
         $modify=$($statusLines | where{$_.StartsWith(" M ")}).Count
         $new=$($statusLines | where{$_.StartsWith("?? ")}).Count
         if ($behind -eq 0 -and $ahead -eq 0 -and $new -eq 0 -and $modify -eq 0 -and $deleted -eq 0) {
-            Write-Host "=" -ForeGroundColor Cyan -NoNewLine
+            if($isRemoteBranch) {
+                Write-Host "=" -ForeGroundColor Cyan -NoNewLine
+            }
+            else {
+                Write-Host "☁️ ↑" -ForeGroundColor yellow -NoNewLine
+            }
         }
         else {
             Write-Host " ↓$behind " -ForeGroundColor Red -NoNewLine 
@@ -73,10 +80,10 @@ function prompt {
 }
 
 Import-Module PSReadLine
-Set-PSReadLineOption -Colors @{ InlinePrediction = '#9CA3AF'}
-Set-PSReadLineOption -EditMode Windows
-Set-PSReadLineOption -PredictionSource HistoryAndPlugin 
-Set-PSReadlineOption -PredictionViewStyle InlineView
+# Set-PSReadLineOption -Colors @{ InlinePrediction = '#9CA3AF'}
+# Set-PSReadLineOption -EditMode Windows
+# Set-PSReadLineOption -PredictionSource HistoryAndPlugin 
+# Set-PSReadlineOption -PredictionViewStyle InlineView
 (Get-PSReadLineOption).ShowToolTips = $True
 (Get-PSReadLineOption).HistoryNoDuplicates = $True
 Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
