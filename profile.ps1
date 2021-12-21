@@ -163,8 +163,11 @@ function gitMergeTo([ValidateSet([BranchesNames])] $targetBranchName='integratio
 }
 Set-Alias gitmt gitMergeTo
 
-function gitMoveToBranch([ArgumentCompleter({ getAllBranches })] $branchName='master') { git checkout $branchName; git checkout -b $branchName; git pull }
-Set-Alias gitc gitMoveToBranch 
+function gitMoveToBranch([ValidateSet([BranchesNames])] $branchName='master') { git checkout $branchName; git pull }
+Set-Alias gitc gitMoveToBranch
+
+function gitCreateBranch($branchName) { git checkout -b $branchName; }
+Set-Alias gitnb gitCreateBranch 
 
 function gitMerge([ValidateSet([BranchesNames])] $branchName='master') { git fetch --all; git pull ; git merge -X ignore-all-space --no-ff origin/$branchName }
 Set-Alias gitm gitMerge
