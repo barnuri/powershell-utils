@@ -172,6 +172,9 @@ Set-Alias gitnb gitCreateBranch
 function gitMerge([ValidateSet([BranchesNames])] $branchName='master') { git fetch --all; git pull ; git merge -X ignore-all-space --no-ff origin/$branchName }
 Set-Alias gitm gitMerge
 
+function gitDiff([ValidateSet([BranchesNames])] $branchName='master') { git diff $branchName...$(git branch --show-current) --name-status }
+Set-Alias gitdiff gitDiff
+
 function openHostsFile() { code C:\Windows\System32\drivers\etc\hosts }
 Set-Alias hostsFile openHostsFile
 Set-Alias hostFile openHostsFile
@@ -180,6 +183,7 @@ Set-Alias hostsService "C:\Program Files (x86)\Acrylic DNS Proxy\AcrylicUI.exe"
 
 function openProfile() { code $profile }
 Set-Alias profile openProfile
+
 function whichFunc($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
 Set-Alias which whichFunc
 
