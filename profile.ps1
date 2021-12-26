@@ -174,6 +174,10 @@ Set-Alias gitm gitMerge
 
 function gitDiff([ValidateSet([BranchesNames])] $branchName='master') { git diff $branchName...$(git branch --show-current) --name-status }
 
+function gitCheckoutFile([ValidateSet([BranchesNames])] $branchName) { git checkout $branchName -- $args }
+
+function gitCheckoutFileFromMaster() { git checkout master -- $args }
+
 # general
 function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
