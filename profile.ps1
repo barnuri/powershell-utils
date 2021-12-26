@@ -13,10 +13,10 @@ function syncPowershellUtils() {
     $profileContent -match '(\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#[.\s\S]*\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# END Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#)' | out-null
     if($Matches.Count -gt 1) {
         $profileContent = $profileContent.Replace($Matches[1], $newProfileContent)
-        echo $profileContent > $profile
+        echo $profileContent.TrimEnd() > $profile
     } else {
         echo $null >> $profile 
-        Add-Content $profile $newProfileContent
+        Add-Content $profile $newProfileContent.Trim()
     }
     '' -match '' | out-null # reset regex result
 }
