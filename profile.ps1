@@ -172,8 +172,8 @@ Set-Alias gitnb gitCreateBranch
 function gitMerge([ValidateSet([BranchesNames])] $branchName='master') { git fetch --all; git pull ; git merge -X ignore-all-space --no-ff origin/$branchName }
 Set-Alias gitm gitMerge
 
-function gitDiff([ValidateSet([BranchesNames])] $branchName='master') { git diff $branchName...$(git branch --show-current) --name-status }
-Set-Alias gitdiff gitDiff
+function gitDiffFunc([ValidateSet([BranchesNames])] $branchName='master') { git diff $branchName...$(git branch --show-current) --name-status }
+Set-Alias gitdiff gitDiffFunc
 
 function openHostsFile() { code C:\Windows\System32\drivers\etc\hosts }
 Set-Alias hostsFile openHostsFile
@@ -186,5 +186,8 @@ Set-Alias profile openProfile
 
 function whichFunc($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
 Set-Alias which whichFunc
+
+function screenCloseFunc() { (Add-Type '[DllImport(\"user32.dll\")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1,0x0112,0xF170,2) }
+Set-Alias screenClose screenCloseFunc
 
 ################# END Profile By BarNuri #################
