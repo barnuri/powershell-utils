@@ -90,6 +90,7 @@ Set-PSReadlineOption -PredictionViewStyle InlineView
 Set-PSReadlineKeyHandler -Key Ctrl+Spacebar -Function MenuComplete
 Set-PSReadlineKeyHandler -Key Tab -Function AcceptNextSuggestionWord
 
+# use code-insiders as code command
 if (-Not $(Get-Command code -errorAction SilentlyContinue))
 {
     if (Get-Command code-insiders -errorAction SilentlyContinue)
@@ -98,6 +99,7 @@ if (-Not $(Get-Command code -errorAction SilentlyContinue))
     }
 }
 
+# k8s
 Set-Alias k kubectl
 Set-Alias k8s kubectl
 Set-Alias ll dir
@@ -112,12 +114,11 @@ function klogFunc($search) { kubectl logs --tail=100000 -f -l $search }
 Set-Alias klog klogFunc
 Set-Alias klogs klogFunc
 
+# ssh
 function sshKeyFunc { cat $home\.ssh\id_rsa.pub }
 Set-Alias sshkey sshKeyFunc
 
-function Remove-MergedBranches { git branch --merged | ForEach-Object { $_.Trim() } | Where-Object {$_ -NotMatch "^\*"} | Where-Object {-not ( $_ -Like "*master" )} | ForEach-Object { git branch -d $_ }  }
-Set-Alias gitrmb Remove-MergedBranches
-
+# python
 function Python3venv() { python -m virtualenv venv }
 Set-Alias p3venv Python3venv
 
@@ -130,14 +131,13 @@ Set-Alias pipi PipInstall
 function PipPackage() { python -m pip install --upgrade pip; pip install . }
 Set-Alias pipp PipPackage
 
-function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
-Set-Alias hfile HistoryFile
+# git 
+function Remove-MergedBranches { git branch --merged | ForEach-Object { $_.Trim() } | Where-Object {$_ -NotMatch "^\*"} | Where-Object {-not ( $_ -Like "*master" )} | ForEach-Object { git branch -d $_ }  }
+Set-Alias gitrmb Remove-MergedBranches
 
 function getAllBranches() { git branch -a -l --format "%(refname:short)" | ForEach-Object { $_.Split("/")[-1] } | Where-Object { $_ -ne "HEAD" } }
-Set-Alias allBranches getAllBranches
 
 function gitCleanLocalBranches() { git fetch --all --prune ; git tag -l | ForEach-Object {git tag $_.Trim() -d} ; git branch -l --format "%(refname:short)" | ForEach-Object {  git  branch  $_.Trim()  -D } }
-Set-Alias gitCleanBranches gitCleanLocalBranches
 
 function gitResetHard() { git reset --hard }
 Set-Alias gitReset gitResetHard
@@ -172,8 +172,11 @@ Set-Alias gitnb gitCreateBranch
 function gitMerge([ValidateSet([BranchesNames])] $branchName='master') { git fetch --all; git pull ; git merge -X ignore-all-space --no-ff origin/$branchName }
 Set-Alias gitm gitMerge
 
-function gitDiffFunc([ValidateSet([BranchesNames])] $branchName='master') { git diff $branchName...$(git branch --show-current) --name-status }
-Set-Alias gitdiff gitDiffFunc
+function gitDiff([ValidateSet([BranchesNames])] $branchName='master') { git diff $branchName...$(git branch --show-current) --name-status }
+
+# general
+function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
+Set-Alias hfile HistoryFile
 
 function openHostsFile() { code C:\Windows\System32\drivers\etc\hosts }
 Set-Alias hostsFile openHostsFile
@@ -187,7 +190,6 @@ Set-Alias profile openProfile
 function whichFunc($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
 Set-Alias which whichFunc
 
-function screenCloseFunc() { (Add-Type '[DllImport(\"user32.dll\")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1,0x0112,0xF170,2) }
-Set-Alias screenClose screenCloseFunc
+function screenClose() { (Add-Type '[DllImport(\"user32.dll\")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1,0x0112,0xF170,2) }
 
 ################# END Profile By BarNuri #################
