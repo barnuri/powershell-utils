@@ -59,7 +59,7 @@ function prompt {
         $new=$($statusLines | where{$_.StartsWith("?? ")}).Count
         if ($behind -eq 0 -and $ahead -eq 0 -and $new -eq 0 -and $modify -eq 0 -and $deleted -eq 0) {
             if($isRemoteBranch) {
-                Write-Host "=" -ForeGroundColor Cyan -NoNewLine
+                Write-Host " =" -ForeGroundColor Cyan -NoNewLine
             }
             else {
                 Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
