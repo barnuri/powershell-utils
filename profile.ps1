@@ -54,16 +54,15 @@ function prompt {
         Write-Host " ["  -NoNewLine -ForeGroundColor Yellow
         Write-Host "$branch" -NoNewLine -ForeGroundColor Cyan
 
-        $deleted=$($statusLines | where{$_.StartsWith(" D ")}).Count
-        $modify=$($statusLines | where{$_.StartsWith(" M ")}).Count
-        $new=$($statusLines | where{$_.StartsWith("?? ")}).Count
-        if ($behind -eq 0 -and $ahead -eq 0 -and $new -eq 0 -and $modify -eq 0 -and $deleted -eq 0) {
-            if($isRemoteBranch) {
-                Write-Host " =" -ForeGroundColor Cyan -NoNewLine
-            }
-            else {
-                Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
-            }
+        $deleted=$($statusLines | where{$_.Trim().StartsWith("D ")}).Count
+        $modify=$($statusLines | where{$_.Trim().StartsWith("M ")}).Count
+        $new=$($statusLines | where{$_.Trim().StartsWith("?? ")}).Count
+        $mergeConflicts=$($statusLines | where{$_.Trim().StartsWith("UU ")}).Count
+        if(!($isRemoteBranch)) {
+            Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
+        }
+        if ($isRemoteBranch -and $behind -eq 0 -and $ahead -eq 0 -and $new -eq 0 -and $modify -eq 0 -and $deleted -eq 0 -and $mergeConflicts -eq 0) {
+            Write-Host " =" -ForeGroundColor Cyan -NoNewLine
         }
         else {
             Write-Host " ↓$behind " -ForeGroundColor Red -NoNewLine 
@@ -72,6 +71,9 @@ function prompt {
                 Write-Host "+$new " -ForeGroundColor Green -NoNewLine 
                 Write-Host "±$modify " -ForeGroundColor Cyan -NoNewLine 
                 Write-Host "-$deleted" -ForeGroundColor Red -NoNewLine 
+            }
+            if ($mergeConflicts -ne 0) {
+                Write-Host " !$mergeConflicts" -ForeGroundColor Magenta -NoNewLine 
             }
         }
 
