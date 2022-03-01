@@ -64,7 +64,7 @@ function prompt {
         if($dontHaveCommitedFiles) {
             $new=$new+$($statusLines | where { $_.StartsWith("? ") }).Count
         }
-        $mergeConflicts=$($statusLines | where { $_.StartsWith("U ") }).Count
+        $mergeConflicts=$($statusLines | where { $_.StartsWith("UU ") }).Count
         if(!($isRemoteBranch)) {
             Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
         }
