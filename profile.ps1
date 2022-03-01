@@ -32,7 +32,8 @@ function prompt {
 
     ## Git Status
     if (Test-Path -Path ".git") {
-        $status=$(git --no-optional-locks status --short --show-stash  --ahead-behind --branch)
+        $longStatus=$(git --no-optional-locks status)
+        $status=$(git --no-optional-locks status --short --ahead-behind --branch)
         $lines=$status.Split([Environment]::NewLine)
         
         $firstLine, $statusLines = $lines
@@ -53,11 +54,13 @@ function prompt {
 
         Write-Host " ["  -NoNewLine -ForeGroundColor Yellow
         Write-Host "$branch" -NoNewLine -ForeGroundColor Cyan
-
-        $deleted=$($statusLines | where{$_.Trim().StartsWith("D ")}).Count
-        $modify=$($statusLines | where{$_.Trim().StartsWith("M ")}).Count
-        $new=$($statusLines | where{$_.Trim().StartsWith("?? ")}).Count
-        $mergeConflicts=$($statusLines | where{$_.Trim().StartsWith("UU ")}).Count
+        
+        $haveStagedFiles = $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("changes not staged for commit") }).Count -gt 0
+        $shouldTrim = $haveStagedFiles -eq $false
+        $deleted=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("D ") }).Count
+        $modify=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("M ") }).Count
+        $new=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("?? ") }).Count
+        $mergeConflicts=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("UU ") }).Count
         if(!($isRemoteBranch)) {
             Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
         }
