@@ -55,12 +55,16 @@ function prompt {
         Write-Host " ["  -NoNewLine -ForeGroundColor Yellow
         Write-Host "$branch" -NoNewLine -ForeGroundColor Cyan
         
-        $haveStagedFiles = $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("changes not staged for commit") }).Count -gt 0
-        $shouldTrim = $haveStagedFiles -eq $false
-        $deleted=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("D ") }).Count
-        $modify=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("M ") }).Count
-        $new=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("?? ") }).Count
-        $mergeConflicts=$($statusLines | where { $(If ($shouldTrim) {$_.Trim()} Else {$_}).StartsWith("UU ") }).Count
+        $dontHaveCommitedFiles = $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("no changes added to commit") }).Count -gt 0
+        $statusLines = $statusLines | foreach { If ($dontHaveCommitedFiles) { $_.Trim() } Else { $_ } }
+
+        $deleted=$($statusLines | where { $_.StartsWith("D ") }).Count
+        $modify=$($statusLines | where { $_.StartsWith("M ") }).Count + $($statusLines | where { $_.StartsWith("T ") }).Count + $($statusLines | where { $_.StartsWith("C ") }).Count
+        $new=$($statusLines | where { $_.StartsWith("A ") }).Count
+        if($dontHaveCommitedFiles) {
+            $new=$new+$($statusLines | where { $_.StartsWith("? ") }).Count
+        }
+        $mergeConflicts=$($statusLines | where { $_.StartsWith("U ") }).Count
         if(!($isRemoteBranch)) {
             Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
         }
