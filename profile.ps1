@@ -55,7 +55,7 @@ function prompt {
         Write-Host " ["  -NoNewLine -ForeGroundColor Yellow
         Write-Host "$branch" -NoNewLine -ForeGroundColor Cyan
         
-        $dontHaveCommitedFiles = $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("no changes added to commit") }).Count -gt 0
+        $dontHaveCommitedFiles = ($($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("no changes added to commit") }).Count + $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("nothing added to commit") }).Count) -gt 0
         $statusLines = $statusLines | foreach { If ($dontHaveCommitedFiles) { $_.Trim() } Else { $_ } }
 
         $deleted=$($statusLines | where { $_.StartsWith("D ") }).Count
