@@ -62,9 +62,9 @@ function prompt {
         $modify=$($statusLines | where { $_.StartsWith("M ") }).Count + $($statusLines | where { $_.StartsWith("T ") }).Count + $($statusLines | where { $_.StartsWith("C ") }).Count
         $new=$($statusLines | where { $_.StartsWith("A ") }).Count
         if($dontHaveCommitedFiles) {
-            $new=$new+$($statusLines | where { $_.StartsWith("? ") }).Count
+            $new=$new+$($statusLines | where { $_.StartsWith("?? ") }).Count + $($statusLines | where { $_.StartsWith("? ") }).Count
         }
-        $mergeConflicts=$($statusLines | where { $_.StartsWith("UU ") }).Count
+        $mergeConflicts=$($statusLines | where { $_.StartsWith("UU ") }).Count + $($statusLines | where { $_.StartsWith("U ") }).Count
         if(!($isRemoteBranch)) {
             Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
         }
@@ -206,3 +206,4 @@ Set-Alias which whichFunc
 function screenClose() { (Add-Type '[DllImport(\"user32.dll\")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1,0x0112,0xF170,2) }
 
 ################# END Profile By BarNuri #################
+ 
