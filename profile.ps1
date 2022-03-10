@@ -59,7 +59,7 @@ function prompt {
         $statusLines = $statusLines | foreach { If ($dontHaveCommitedFiles) { $_.Trim() } Else { $_ } }
 
         $deleted=$($statusLines | where { $_.StartsWith("D ") }).Count
-        $modify=$($statusLines | where { $_.StartsWith("M ") }).Count + $($statusLines | where { $_.StartsWith("T ") }).Count + $($statusLines | where { $_.StartsWith("C ") }).Count
+        $modify=$($statusLines | where { $_.StartsWith("M ") }).Count + $($statusLines | where { $_.StartsWith("T ") }).Count + $($statusLines | where { $_.StartsWith("R ") }).Count + $($statusLines | where { $_.StartsWith("C ") }).Count
         $new=$($statusLines | where { $_.StartsWith("A ") }).Count
         if($dontHaveCommitedFiles) {
             $new=$new+$($statusLines | where { $_.StartsWith("?? ") }).Count + $($statusLines | where { $_.StartsWith("? ") }).Count
