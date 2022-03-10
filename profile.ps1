@@ -44,11 +44,11 @@ function prompt {
         $branch=$Matches[1].Split(".")[0]
         '' -match '' | out-null # reset regex result
 
-        $firstLine -match '\[(?:.*)?(?:behind (\d)+)\]' | out-null
+        $firstLine -match '\[(?:.*)?(?:behind (\d+))\]' | out-null
         $behind=$($Matches[1] ?? 0)
         '' -match '' | out-null # reset regex result
 
-        $firstLine -match '\[(?:ahead (\d)+).*\]' | out-null 
+        $firstLine -match '\[(?:ahead (\d+)).*\]' | out-null 
         $ahead=$($Matches[1] ?? 0)
         '' -match '' | out-null # reset regex result
 
