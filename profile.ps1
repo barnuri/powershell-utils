@@ -99,60 +99,44 @@ Set-PSReadlineOption -PredictionViewStyle InlineView
 Set-PSReadlineKeyHandler -Key Ctrl+Spacebar -Function MenuComplete
 Set-PSReadlineKeyHandler -Key Tab -Function AcceptNextSuggestionWord
 
-# use code-insiders as code command
-if (-Not $(Get-Command code -errorAction SilentlyContinue))
-{
-    if (Get-Command code-insiders -errorAction SilentlyContinue)
-    {
-        Set-Alias code code-insiders
-    }
-}
-
-# k8s
-Set-Alias k kubectl
-Set-Alias k8s kubectl
 Set-Alias ll dir
 
-function kconfFunc { kubectl config view --raw --flatten --minify }
-Set-Alias kconf kconfFunc 
+############# k8s
+Set-Alias k kubectl
+function kconf { kubectl config view --raw --flatten --minify }
+function kall($appName='') { kubectl get deploy,svc,ingress,pod $appName }
+function klog($search) { kubectl logs --tail=100000 -f -l $search }
+function klogs($search) { klog $search }
 
-function kallFunc($appName='') { kubectl get deploy,svc,ingress,pod $appName }
-Set-Alias kall kallFunc
-
-function klogFunc($search) { kubectl logs --tail=100000 -f -l $search }
-Set-Alias klog klogFunc
-Set-Alias klogs klogFunc
-
-# ssh
+############# ssh
 function sshKeyFunc { cat $home\.ssh\id_rsa.pub }
 Set-Alias sshkey sshKeyFunc
 
-# python
-function Python3venv() { python -m virtualenv venv }
-Set-Alias p3venv Python3venv
+############# python
+function p3venv() { python3 -m virtualenv venv }
+function p2venv() { python2 -m virtualenv venv }
 
-function Python2venv() { python2 -m virtualenv venv }
-Set-Alias p2venv Python3venv
+# pip install
+function pipi() {
+    python -m pip install --upgrade pip;
+    pip install --upgrade -r REQUIREMENTS 
+}
 
-function PipInstall() { python -m pip install --upgrade pip; pip install --upgrade -r REQUIREMENTS }
-Set-Alias pipi PipInstall
+# pip install package
+function pipp() {
+    python -m pip install --upgrade pip;
+    pip install . 
+}
 
-function PipPackage() { python -m pip install --upgrade pip; pip install . }
-Set-Alias pipp PipPackage
-
-# git 
-function Remove-MergedBranches { git branch --merged | ForEach-Object { $_.Trim() } | Where-Object {$_ -NotMatch "^\*"} | Where-Object {-not ( $_ -Like "*master" )} | ForEach-Object { git branch -d $_ }  }
-Set-Alias gitrmb Remove-MergedBranches
-
+############# git 
+function gitRemoveMergedBranches { git branch --merged | ForEach-Object { $_.Trim() } | Where-Object {$_ -NotMatch "^\*"} | Where-Object {-not ( $_ -Like "*master" )} | ForEach-Object { git branch -d $_ }  }
 function getAllBranches() { git branch -a -l --format "%(refname:short)" | ForEach-Object { $_.Split("/")[-1] } | Where-Object { $_ -ne "HEAD" } }
-
-function gitCleanLocalBranches() { git fetch --all --prune ; git tag -l | ForEach-Object {git tag $_.Trim() -d} ; git branch -l --format "%(refname:short)" | ForEach-Object {  git  branch  $_.Trim()  -D } }
-
-function gitResetHard() { git reset --hard }
-Set-Alias gitReset gitResetHard
-
+function gitCleanLocalBranches() {
+    git fetch --all --prune ;
+    git tag -l | ForEach-Object {git tag $_.Trim() -d} ;
+    git branch -l --format "%(refname:short)" | ForEach-Object {  git  branch  $_.Trim()  -D }
+}
 function gitCleanIgnoreFiles() { git clean -dfx }
-Set-Alias gitCleanIgnore gitCleanIgnoreFiles
 
 Class BranchesNames : System.Management.Automation.IValidateSetValuesGenerator {
     [String[]] GetValidValues() {
@@ -163,7 +147,6 @@ Class BranchesNames : System.Management.Automation.IValidateSetValuesGenerator {
 
 function gitMergeTo([ValidateSet([BranchesNames])] $targetBranchName='integration') {
     $currentBranch = $(git branch --show-current)
-    git fetch --all;
     git checkout $targetBranchName;
     git pull ;
     git merge -X ignore-all-space --no-ff $currentBranch ;
@@ -172,38 +155,40 @@ function gitMergeTo([ValidateSet([BranchesNames])] $targetBranchName='integratio
 }
 Set-Alias gitmt gitMergeTo
 
-function gitMoveToBranch([ValidateSet([BranchesNames])] $branchName='master') { git checkout $branchName; git pull }
-Set-Alias gitc gitMoveToBranch
+function gitc([ValidateSet([BranchesNames])] $branchName='master') {
+    git checkout $branchName;
+    git pull 
+}
+# git new branch
+function gitnb($branchName) { git checkout -b $branchName; }
 
-function gitCreateBranch($branchName) { git checkout -b $branchName; }
-Set-Alias gitnb gitCreateBranch 
+# git merge
+function gitm([ValidateSet([BranchesNames])] $branchName='master') {
+     git fetch origin $branchName;
+     git pull ;
+     git merge -X ignore-all-space --no-ff origin/$branchName
+}
 
-function gitMerge([ValidateSet([BranchesNames])] $branchName='master') { git fetch --all; git pull ; git merge -X ignore-all-space --no-ff origin/$branchName }
-Set-Alias gitm gitMerge
-
-function gitDiff([ValidateSet([BranchesNames])] $branchName='master') { git diff $branchName...$(git branch --show-current) --name-status }
-
-function gitCheckoutFile([ValidateSet([BranchesNames])] $branchName) { git checkout $branchName -- $args }
-
-function gitCheckoutFileFromMaster() { git checkout master -- $args }
+function gitDiff([ValidateSet([BranchesNames])] $branchName='master') {
+    git fetch origin $branchName;
+    git diff origin/$branchName...$(git branch --show-current) --name-status
+}
+function gitCheckoutFile([ValidateSet([BranchesNames])] $branchName) {
+    git fetch origin $branchName;
+    git checkout origin/$branchName -- $args
+}
+function gitCheckoutFileFromMaster() {
+    git fetch origin master;
+    git checkout origin/master -- $args
+}
 
 # general
 function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
 
-function openHostsFile() { code C:\Windows\System32\drivers\etc\hosts }
-Set-Alias hostsFile openHostsFile
-Set-Alias hostFile openHostsFile
-Set-Alias hostService "C:\Program Files (x86)\Acrylic DNS Proxy\AcrylicUI.exe"
-Set-Alias hostsService "C:\Program Files (x86)\Acrylic DNS Proxy\AcrylicUI.exe"
-
-function openProfile() { code $profile }
-Set-Alias profile openProfile
-
-function whichFunc($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
-Set-Alias which whichFunc
-
+function hostsFile() { echo "C:\Windows\System32\drivers\etc\hosts" }
+function hostFile() { hostsFile }
+function profile() { echo $profile }
+function which($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
 function screenClose() { (Add-Type '[DllImport(\"user32.dll\")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1,0x0112,0xF170,2) }
-
 ################# END Profile By BarNuri #################
- 
