@@ -133,7 +133,6 @@ function gitRemoveMergedBranches { git branch --merged | ForEach-Object { $_.Tri
 function getAllBranches() { git branch -a -l --format "%(refname:short)" | ForEach-Object { $_.Split("/")[-1] } | Where-Object { $_ -ne "HEAD" } }
 function gitCleanLocalBranches() {
     git fetch --all --prune ;
-    git tag -l | ForEach-Object {git tag $_.Trim() -d} ;
     git branch -l --format "%(refname:short)" | ForEach-Object {  git  branch  $_.Trim()  -D }
 }
 function gitCleanIgnoreFiles() { git clean -dfx }
