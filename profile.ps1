@@ -181,6 +181,19 @@ function gitCheckoutFileFromMaster() {
     git checkout origin/master -- $args
 }
 
+function gitp($msg) {
+    git add .;
+    git commit -am "$msg";
+    git pull;
+    git push;
+}
+
+function gitEmptyCommit() {
+    git commit --allow-empty -m "empty commit - trigger status checks";
+    git pull;
+    git push;
+}
+
 # general
 function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
