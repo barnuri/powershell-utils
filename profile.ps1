@@ -181,12 +181,14 @@ function gitCheckoutFileFromMaster() {
     git checkout origin/master -- $args
 }
 
-function gitp($msg) {
+# git commit & push
+function gitCommitAndPush([Parameter(Mandatory=$true)] $msg) {
     git add .;
-    git commit -am "$msg";
+    git commit -am "$msg $args";
     git pull;
     git push;
 }
+Set-Alias gitp gitCommitAndPush
 
 function gitEmptyCommit() {
     git commit --allow-empty -m "empty commit - trigger status checks";
