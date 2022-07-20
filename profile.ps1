@@ -182,9 +182,13 @@ function gitCheckoutFileFromMaster() {
 }
 
 # git commit & push
-function gitCommitAndPush([Parameter(Mandatory=$true)] $msg) {
+function gitCommitAndPush() {
+    $msg = "$args"
+    if ($msg -eq "") {
+        $msg = "commit"
+    }
     git add .;
-    git commit -am "$msg $args";
+    git commit -am "$args";
     git pull;
     git push;
 }
