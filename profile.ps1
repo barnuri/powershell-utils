@@ -205,7 +205,7 @@ function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
 
 function filesByGlob($glob) {
-    Get-ChildItem -Filter $glob -Recurse -ErrorAction SilentlyContinue -Force | %{$_.FullName}
+    Get-ChildItem -Filter $glob -Recurse -ErrorAction SilentlyContinue -Force | Select-Object -ExpandProperty FullName
 }
 
 
