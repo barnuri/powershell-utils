@@ -204,6 +204,11 @@ function gitEmptyCommit() {
 function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
 
+function filesByGlob($glob) {
+    Get-ChildItem -Filter $glob -Recurse -ErrorAction SilentlyContinue -Force | %{$_.FullName}
+}
+
+
 function hostsFile() { echo "C:\Windows\System32\drivers\etc\hosts" }
 function hostFile() { hostsFile }
 function profile() { echo $profile }
