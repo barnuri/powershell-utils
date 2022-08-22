@@ -208,6 +208,9 @@ function filesByGlob($glob) {
     Get-ChildItem -Filter $glob -Recurse -ErrorAction SilentlyContinue -Force | Select-Object -ExpandProperty FullName
 }
 
+function updatePowershell() {
+    iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
+}
 
 function hostsFile() { echo "C:\Windows\System32\drivers\etc\hosts" }
 function hostFile() { hostsFile }
