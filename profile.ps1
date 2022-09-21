@@ -193,7 +193,7 @@ function gitCommitAndPush() {
         git push --set-upstream origin $currentBranchName
     }
     git add .;
-    git commit -am "$args";
+    git commit -am $msg;
     git pull;
     git push;
 }
