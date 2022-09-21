@@ -184,8 +184,13 @@ function gitCheckoutFileFromMaster() {
 # git commit & push
 function gitCommitAndPush() {
     $msg = "$args"
+    $currentBranchName = $(git --no-optional-locks name-rev --name-only HEAD)
+    $IsRemoteBranch=[bool]$(git --no-optional-locks config branch.$($currentBranchName).merge)
     if ($msg -eq "") {
-        $msg = "commit"
+        $msg = "$currentBranchName"
+    }
+    if(!$IsRemoteBranch) {
+        git push --set-upstream origin $currentBranchName
     }
     git add .;
     git commit -am "$args";
