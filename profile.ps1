@@ -11,7 +11,7 @@ function reloadProfile() {
 function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
     echo $null >> $profile
-    $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1 -Headers @{"Cache-Control"="no-cache"}).Content
+    $newProfileContent = $(curl https://raw.githubusercontent.com/barnuri/powershell-utils/main/profile.ps1 -H "Cache-Control: no-cache, no-store, must-revalidate"-H "Pragma: no-cache")
     '' -match '' | out-null # reset regex result
     $profileContent = $($($(cat $profile) ?? "").Split([Environment]::NewLine) -join "`n")
     $profileContent -match '(\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#[.\s\S]*\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# END Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#)' | out-null
