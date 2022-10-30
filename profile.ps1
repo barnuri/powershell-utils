@@ -4,6 +4,10 @@
 # symbols - https://coolsymbol.com/
 # PSReadLine -  https://docs.microsoft.com/en-us/powershell/module/psreadline/set-psreadlinekeyhandler?view=powershell-7.2
 
+function reloadProfile() {
+    . $profile
+}
+
 function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
     echo $null >> $profile
@@ -19,6 +23,7 @@ function syncPowershellUtils() {
         Add-Content $profile $newProfileContent.Trim()
     }
     '' -match '' | out-null # reset regex result
+    reloadProfile
 }
 
 function prompt {
