@@ -196,8 +196,27 @@ function gitCommitAndPush() {
     git commit -am $msg;
     git pull;
     git push;
+    if(!$IsRemoteBranch) {
+        Write-Host "$(gitOriginUrl)/pull/new/$currentBranchName" -ForeGroundColor Cyan 
+    }
 }
 Set-Alias gitp gitCommitAndPush
+
+function gitOriginUrl() {
+    $repoUrl = $(git config --get remote.origin.url)
+    if($repoUrl.StartsWith("git@")) {
+        $repoUrl = $repoUrl.SubString(4)
+    }
+    $repoUrl = $repoUrl.Replace(":","/")
+    if($repoUrl.EndsWith(".git")) {
+        $repoUrl = $repoUrl.SubString(0, $repoUrl.Length - 4)
+    }
+    if(!$repoUrl.StartsWith("http")) {
+        $repoUrl = "https://$repoUrl"
+    }
+    $repoUrl = $repoUrl.Trim("/")
+    echo "$repoUrl"
+}
 
 function gitEmptyCommit() {
     git commit --allow-empty -m "empty commit - trigger status checks";
