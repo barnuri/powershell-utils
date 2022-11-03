@@ -1,5 +1,7 @@
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
+iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
+
 Import-Module -Name Appx -UseWindowsPowerShell
 
 Add-AppxPackage 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx'
