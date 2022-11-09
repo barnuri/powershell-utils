@@ -21,8 +21,7 @@ Install-Module PSReadLine -Force -SkipPublisherCheck -AllowPrerelease
 ## Install 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-$(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/master/profile.ps1 -Headers @{"Cache-Control"="no-cache"}).Content | iex
-syncPowershellUtils
+$(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/master/installProfileTools.ps1 -Headers @{"Cache-Control"="no-cache"}).Content | iex
 ```
 
 ## Probelms with PSReadLine Installation
