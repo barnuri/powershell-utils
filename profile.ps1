@@ -60,16 +60,25 @@ function prompt {
         Write-Host " ["  -NoNewLine -ForeGroundColor Yellow
         Write-Host "$branch" -NoNewLine -ForeGroundColor Cyan
         
-        $dontHaveCommitedFiles = ($($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("no changes added to commit") }).Count + $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("nothing added to commit") }).Count) -gt 0
+                $dontHaveCommitedFiles = ($($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("no changes added to commit") }).Count + $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("nothing added to commit") }).Count) -gt 0
         $statusLines = $statusLines | foreach { If ($dontHaveCommitedFiles) { $_.Trim() } Else { $_ } }
 
         $deleted=$($statusLines | where { $_.StartsWith("D ") }).Count
-        $modify=$($statusLines | where { $_.StartsWith("M ") }).Count + $($statusLines | where { $_.StartsWith("T ") }).Count + $($statusLines | where { $_.StartsWith("R ") }).Count + $($statusLines | where { $_.StartsWith("C ") }).Count
+        $modify=$($statusLines | where { $_.StartsWith("M ") -OR $_.StartsWith("T ") -OR $_.StartsWith("R ") -OR $_.StartsWith("C ") }).Count
         $new=$($statusLines | where { $_.StartsWith("A ") }).Count
         if($dontHaveCommitedFiles) {
             $new=$new+$($statusLines | where { $_.StartsWith("?? ") }).Count + $($statusLines | where { $_.StartsWith("? ") }).Count
         }
-        $mergeConflicts=$($statusLines | where { $_.StartsWith("UU ") }).Count + $($statusLines | where { $_.StartsWith("U ") }).Count
+        $mergeConflicts=$($statusLines | where { 
+            $_.StartsWith("UU ") -OR 
+            $_.StartsWith("U ") -OR 
+            $_.StartsWith("AA ") -OR 
+            $_.StartsWith("DD ") -OR 
+            $_.StartsWith("AU ") -OR 
+            $_.StartsWith("UD ") -OR 
+            $_.StartsWith("UA ") -OR 
+            $_.StartsWith("DU ")
+        }).Count
         if(!($isRemoteBranch)) {
             Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
         }
