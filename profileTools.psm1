@@ -4,26 +4,21 @@
 # symbols - https://coolsymbol.com/
 # PSReadLine -  https://docs.microsoft.com/en-us/powershell/module/psreadline/set-psreadlinekeyhandler?view=powershell-7.2
 
-function reloadProfile() {
-    . $profile
-}
+$parentDir = $(Split-Path $profile)
+$profileTools = Join-Path -Path $parentDir -ChildPath "profileTools.psm1"
+function profileTools() {
+    echo $profileTools
+} 
 
 function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
-    echo $null >> $profile
-    $newProfileContent = $(curl https://raw.githubusercontent.com/barnuri/powershell-utils/master/profile.ps1 -H "Cache-Control: no-cache, no-store, must-revalidate"-H "Pragma: no-cache")
-    '' -match '' | out-null # reset regex result
-    $profileContent = $($($(cat $profile) ?? "").Split([Environment]::NewLine) -join "`n")
-    $profileContent -match '(\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#[.\s\S]*\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# END Profile By BarNuri \#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#)' | out-null
-    if($Matches.Count -gt 1) {
-        $profileContent = $profileContent.Replace($Matches[1], $newProfileContent)
-        echo $profileContent.TrimEnd() > $profile
-    } else {
-        echo $null >> $profile 
-        Add-Content $profile $newProfileContent.Trim()
-    }
-    '' -match '' | out-null # reset regex result
-    reloadProfile
+    $newProfileContent = $(curl https://raw.githubusercontent.com/barnuri/powershell-utils/master/profileTools.psm1 -H "Cache-Control: no-cache, no-store, must-revalidate"-H "Pragma: no-cache")
+    echo $newProfileContent > $profileTools
+    Import-Module $profileTools  -Force
+}
+
+function reloadProfile() {
+    . $profile
 }
 
 function prompt {
@@ -255,4 +250,6 @@ function hostFile() { hostsFile }
 function profile() { echo $profile }
 function which($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
 function screenClose() { (Add-Type '[DllImport(\"user32.dll\")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1,0x0112,0xF170,2) }
+
+Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
