@@ -26,6 +26,7 @@ function syncPowershellUtils() {
 
 function reloadProfile() {
     . $profile
+    Import-Module $profileTools -Force
 }
 
 function prompt {
