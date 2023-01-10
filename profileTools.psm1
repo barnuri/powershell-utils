@@ -282,7 +282,7 @@ function wslIp($DOCKER_DISTRO = "Ubuntu-20.04") {
     echo "$((wsl -d "$DOCKER_DISTRO" sh -c "hostname -I").Split(" ")[0] )"
 }
 
-function Docker-Service($DOCKER_DISTRO = "Ubuntu-20.04") {
+function DockerService($DOCKER_DISTRO = "Ubuntu-20.04") {
   $DOCKER_DIR = "/mnt/wsl/shared-docker"
   $DOCKER_SOCK = "$DOCKER_DIR/docker.sock"
   wsl -d "$DOCKER_DISTRO" sh -c "[ -S '$DOCKER_SOCK' ]"
