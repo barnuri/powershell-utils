@@ -259,5 +259,47 @@ function profile() { echo $profile }
 function which($search) { $res=$(Get-Command $search -errorAction SilentlyContinue); if($res.Source) { echo $res.Source } else { echo $res } }
 function screenClose() { (Add-Type '[DllImport(\"user32.dll\")]^public static extern int PostMessage(int hWnd, int hMsg, int wParam, int lParam);' -Name a -Pas)::PostMessage(-1,0x0112,0xF170,2) }
 
+function watch($command, $secsToSleep = 5) {
+    while (1) {
+        clear ;
+        echo "$(Get-Date)" ;
+        . $command ;
+        sleep $secsToSleep ;
+    }
+}
+
+function wslIp($DOCKER_DISTRO = "Ubuntu-20.04") {
+    echo "$((wsl -d "$DOCKER_DISTRO" sh -c "hostname -I").Split(" ")[0] )"
+}
+
+function Docker-Service($DOCKER_DISTRO = "Ubuntu-20.04") {
+  $DOCKER_DIR = "/mnt/wsl/shared-docker"
+  $DOCKER_SOCK = "$DOCKER_DIR/docker.sock"
+  wsl -d "$DOCKER_DISTRO" sh -c "[ -S '$DOCKER_SOCK' ]"
+  if ($LASTEXITCODE) {
+    wsl -d "$DOCKER_DISTRO" sh -c "mkdir -pm o=,ug=rwx $DOCKER_DIR ; chgrp docker $DOCKER_DIR"
+    wsl -d "$DOCKER_DISTRO" sh -c "nohup sudo -b dockerd < /dev/null > $DOCKER_DIR/dockerd.log 2>&1"
+  }
+}
+
+function wslProxy($DOCKER_DISTRO = "Ubuntu-20.04") {
+    $env:WSL_HOST = (wsl -d "$DOCKER_DISTRO" sh -c "hostname -I").Split(" ")[0] 
+    $env:DOCKER_HOST = "tcp://$($env:WSL_HOST):2375"
+    netsh interface portproxy add v4tov4 listenport=2375 connectport=2375 connectaddress=$env:WSL_HOST
+}
+
+function wslProxyPort($port, $DOCKER_DISTRO = "Ubuntu-20.04") {
+    $WSL_HOST = (wsl -d "$DOCKER_DISTRO" sh -c "hostname -I").Split(" ")[0]
+    netsh interface portproxy add v4tov4 listenport=$port connectport=$port connectaddress=$WSL_HOST
+}
+
+function wslProxyPortDelete($port) {
+    netsh interface portproxy delete v4tov4 listenport=$port
+}
+
+function minikubeProxy($DOCKER_DISTRO = "Ubuntu-20.04") {
+    $(wsl -d "$DOCKER_DISTRO" kubectl config view --raw --flatten --minify) > ~/.kube/config
+}
+
 Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
