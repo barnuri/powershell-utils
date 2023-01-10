@@ -22,12 +22,12 @@ function syncPowershellUtils() {
         echo $installString >> $profile
         echo "`$SaveVerbosePreference = `$global:VerbosePreference;" >> $profile
         echo "`$global:VerbosePreference = 'SilentlyContinue';" >> $profile
-        echo "Import-Module $profileTools -Force" >> $profile
+        echo "Import-Module $profileTools -Force -DisableNameChecking" >> $profile
         echo "`$global:VerbosePreference = `$SaveVerbosePreference;" >> $profile
     }
     $SaveVerbosePreference = $global:VerbosePreference;
     $global:VerbosePreference = 'SilentlyContinue';
-    Import-Module $profileTools -Force
+    Import-Module $profileTools -Force -DisableNameChecking
     $global:VerbosePreference = $SaveVerbosePreference;
 }
 
@@ -35,7 +35,7 @@ function reloadProfile() {
     . $profile
     $SaveVerbosePreference = $global:VerbosePreference;
     $global:VerbosePreference = 'SilentlyContinue';
-    Import-Module $profileTools -Force
+    Import-Module $profileTools -Force -DisableNameChecking
     $global:VerbosePreference = $SaveVerbosePreference;
 }
 
