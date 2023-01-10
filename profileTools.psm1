@@ -251,6 +251,14 @@ function gitEmptyCommit() {
     git push;
 }
 
+function gitSpeedUp() {
+    $env:GIT_ASK_YESNO="false" ;
+    git fsck ;
+    git repack -ad ;
+    git gc --aggressive  --prune=now --force ;
+    git status ;
+}
+
 # general
 function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
