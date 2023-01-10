@@ -19,14 +19,23 @@ function syncPowershellUtils() {
     if (-not $importModuleExists)
     {
         echo $installString >> $profile
+        echo "`$SaveVerbosePreference = `$global:VerbosePreference;" >> $profile
+        echo "`$global:VerbosePreference = 'SilentlyContinue';" >> $profile
         echo "Import-Module $profileTools -Force" >> $profile
+        echo "`$global:VerbosePreference = `$SaveVerbosePreference;" >> $profile
     }
+    $SaveVerbosePreference = $global:VerbosePreference;
+    $global:VerbosePreference = 'SilentlyContinue';
     Import-Module $profileTools -Force
+    $global:VerbosePreference = $SaveVerbosePreference;
 }
 
 function reloadProfile() {
     . $profile
+    $SaveVerbosePreference = $global:VerbosePreference;
+    $global:VerbosePreference = 'SilentlyContinue';
     Import-Module $profileTools -Force
+    $global:VerbosePreference = $SaveVerbosePreference;
 }
 
 function prompt {
