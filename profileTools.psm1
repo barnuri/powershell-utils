@@ -12,8 +12,7 @@ function profileTools() {
 
 function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
-    $date = $(Get-Date).ToString()
-    $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/master/profileTools.psm1?noCache=$date).Content
+    $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/master/profileTools.psm1?noCache=$((Get-Date).ToString())).Content
     echo $newProfileContent > $profileTools
     $installString = "### load profileTools.psm1"
     $importModuleExists = Select-String -Quiet -Pattern $installString -Path $profile
