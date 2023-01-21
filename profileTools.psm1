@@ -13,7 +13,7 @@ function profileTools() {
 function syncPowershellUtils() {
     mkdir -p (Split-Path -Path $profile -Parent) -errorAction SilentlyContinue
     $date = $(Get-Date).ToString()
-    $newProfileContent = $(curl https://raw.githubusercontent.com/barnuri/powershell-utils/master/profileTools.psm1?noCache=$date -H "Cache-Control: no-cache, no-store, must-revalidate"-H "Pragma: no-cache")
+    $newProfileContent = $(Invoke-WebRequest https://raw.githubusercontent.com/barnuri/powershell-utils/master/profileTools.psm1?noCache=$date).Content
     echo $newProfileContent > $profileTools
     $installString = "### load profileTools.psm1"
     $importModuleExists = Select-String -Quiet -Pattern $installString -Path $profile
