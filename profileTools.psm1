@@ -213,7 +213,7 @@ function gitCleanCommitsIntoOne() {
         $msg = "$currentBranchName"
     }
     git fetch origin master;
-    git reset $(git merge-base master $(git branch --show-current));
+    git reset $(git merge-base origin/master $(git branch --show-current));
     git add -A;
     git commit -m "$msg";
     git push -f;
