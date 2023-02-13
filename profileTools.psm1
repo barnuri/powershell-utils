@@ -206,7 +206,18 @@ function gitCheckoutFileFromMaster() {
     git fetch origin master;
     git checkout origin/master -- $args
 }
-
+function gitCleanCommitsIntoOne() {
+    $msg = "$args"
+    $currentBranchName = $(git name-rev --name-only HEAD)
+    if ($msg -eq "") {
+        $msg = "$currentBranchName"
+    }
+    git fetch origin master;
+    git reset $(git merge-base master $(git branch --show-current));
+    git add -A;
+    git commit -m "$msg";
+    git push -f;
+}
 # git commit & push
 function gitCommitAndPush() {
     $msg = "$args"
