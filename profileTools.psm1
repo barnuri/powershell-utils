@@ -163,14 +163,16 @@ function gitCleanLocalBranches() {
 }
 function gitCleanIgnoreFiles() { git clean -dfx }
 
-Class BranchesNames : System.Management.Automation.IValidateSetValuesGenerator {
-    [String[]] GetValidValues() {
-        $BranchesNames = $(getAllBranches)
-        return [String[]] $BranchesNames
-    }
-}
+# Class BranchesNames : System.Management.Automation.IValidateSetValuesGenerator {
+#     [String[]] GetValidValues() {
+#         $BranchesNames = $(getAllBranches)
+#         return [String[]] $BranchesNames
+#     }
+# }
 
-function gitMergeTo([ValidateSet([BranchesNames])] $targetBranchName='integration') {
+function gitMergeTo(
+    #[ValidateSet([BranchesNames])]
+     $targetBranchName='integration') {
     $currentBranch = $(git branch --show-current)
     git checkout $targetBranchName;
     git pull ;
@@ -180,7 +182,9 @@ function gitMergeTo([ValidateSet([BranchesNames])] $targetBranchName='integratio
 }
 Set-Alias gitmt gitMergeTo
 
-function gitc([ValidateSet([BranchesNames])] $branchName='master') {
+function gitc(
+    #[ValidateSet([BranchesNames])]
+     $branchName='master') {
     git checkout $branchName;
     git pull 
 }
@@ -188,17 +192,23 @@ function gitc([ValidateSet([BranchesNames])] $branchName='master') {
 function gitnb($branchName) { git checkout -b $branchName; }
 
 # git merge
-function gitm([ValidateSet([BranchesNames])] $branchName='master') {
+function gitm(
+    #[ValidateSet([BranchesNames])]
+     $branchName='master') {
      git fetch origin $branchName;
      git pull ;
      git merge -X ignore-all-space --no-ff origin/$branchName
 }
 
-function gitDiff([ValidateSet([BranchesNames])] $branchName='master') {
+function gitDiff(
+    #[ValidateSet([BranchesNames])]
+     $branchName='master') {
     git fetch origin $branchName;
     git diff origin/$branchName...$(git branch --show-current) --name-status
 }
-function gitCheckoutFile([ValidateSet([BranchesNames])] $branchName) {
+function gitCheckoutFile(
+    #[ValidateSet([BranchesNames])]
+     $branchName) {
     git fetch origin $branchName;
     git checkout origin/$branchName -- $args
 }
