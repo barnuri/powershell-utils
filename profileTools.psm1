@@ -49,8 +49,8 @@ function prompt {
 
     ## Git Status
     if (Test-Path -Path ".git") {
-        $longStatus=$(git --no-optional-locks status)
-        $status=$(git --no-optional-locks status --short --ahead-behind --branch)
+        $longStatus=$(git status)
+        $status=$(git status --short --ahead-behind --branch)
         $lines=$status.Split([Environment]::NewLine)
         
         $firstLine, $statusLines = $lines
@@ -231,8 +231,8 @@ function gitCleanCommitsIntoOne() {
 # git commit & push
 function gitCommitAndPush() {
     $msg = "$args"
-    $currentBranchName = $(git --no-optional-locks name-rev --name-only HEAD)
-    $IsRemoteBranch=[bool]$(git --no-optional-locks config branch.$($currentBranchName).merge)
+    $currentBranchName = $(git name-rev --name-only HEAD)
+    $IsRemoteBranch=[bool]$(git config branch.$($currentBranchName).merge)
     if ($msg -eq "") {
         $msg = "$currentBranchName"
     }
