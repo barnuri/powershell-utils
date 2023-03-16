@@ -291,6 +291,11 @@ function updatePowershell() {
     iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
 }
 
+function hardLink($src, $dest) {
+    try { del $dest 2>&1 | out-null } catch {}
+    New-Item -ItemType SymbolicLink -Path $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($dest) -Target $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($src)
+}
+
 function hostsFile() { echo "C:\Windows\System32\drivers\etc\hosts" }
 function hostFile() { hostsFile }
 function profile() { echo $profile }
@@ -341,3 +346,4 @@ function minikubeProxy($DOCKER_DISTRO = "Ubuntu-20.04") {
 
 Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
+
