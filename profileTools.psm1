@@ -191,6 +191,13 @@ function gitc(
 # git new branch
 function gitnb($branchName) { git checkout -b $branchName; }
 
+# git new branch from master
+function gitnbm($branchName) {
+    git fetch origin master ;
+    git checkout origin/master ;
+    gitnb $branchName
+}
+
 # git merge
 function gitm(
     #[ValidateSet([BranchesNames])]
@@ -265,8 +272,8 @@ function gitOriginUrl() {
     echo "$repoUrl"
 }
 
-function gitEmptyCommit() {
-    git commit --allow-empty -m "empty commit - trigger status checks";
+function gitEmptyCommit($msg = "empty commit - trigger status checks") {
+    git commit --allow-empty -m "$msg";
     git pull;
     git push;
 }
