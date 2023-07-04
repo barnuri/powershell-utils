@@ -38,105 +38,101 @@ function reloadProfile() {
     $global:VerbosePreference = $SaveVerbosePreference;
 }
 
-$functions = {
-    
-    function colorString($str, $color) {
+function colorString($str, $color) {
+    $colorNum = 37
+    $color = "$color".ToLower()
+    if ($color -eq "black") {
+        $colorNum = 30
+    }
+    if ($color -eq "red") {
+        $colorNum = 31
+    }
+    if ($color -eq "green") {
+        $colorNum = 32
+    }
+    if ($color -eq "yellow") {
+        $colorNum = 33
+    }
+    if ($color -eq "blue") {
+        $colorNum = 34
+    }
+    if ($color -eq "magenta") {
+        $colorNum = 35
+    }
+    if ($color -eq "cyan") {
+        $colorNum = 36
+    }
+    if ($color -eq "white") {
         $colorNum = 37
-        $color = "$color".ToLower()
-        if ($color -eq "black") {
-            $colorNum = 30
+    }
+    return "`e[$($colorNum)m$str`e[0m"
+}
+
+function gitStatus() {
+    if (!(Test-Path -Path ".git")) {
+        return
+    }
+    
+    $status=$(git status --short --ahead-behind --branch -uno)
+    $lines=$status.Replace("`r","").Split("`n")
+    
+    $firstLine, $statusLines = $lines
+    $statusLines += ""
+
+    $firstLine -match '## (.+)' | out-null
+    $isRemoteBranch = $Matches[1].Split(".").Count -gt 1
+    $branch=$Matches[1].Split(".")[0]
+    '' -match '' | out-null # reset regex result
+
+    $firstLine -match '\[(?:.*)?(?:behind (\d+))\]' | out-null
+    $behind=$($Matches[1] ?? 0)
+    '' -match '' | out-null # reset regex result
+
+    $firstLine -match '\[(?:ahead (\d+)).*\]' | out-null 
+    $ahead=$($Matches[1] ?? 0)
+    '' -match '' | out-null # reset regex result
+
+    $output = ""
+    $output += colorString " ["  Yellow
+    $output += colorString "$branch" Cyan
+    
+    $statusLines = $statusLines | foreach { $_.Trim() }
+
+    $deleted=$($statusLines | where { $_.StartsWith("D ") }).Count
+    $modify=$($statusLines | where { $_.StartsWith("M ") -OR $_.StartsWith("T ") -OR $_.StartsWith("R ") -OR $_.StartsWith("C ") }).Count
+    $new=$($statusLines | where { $_.StartsWith("A ") }).Count
+    $new=$new+$($statusLines | where { $_.StartsWith("?? ") }).Count + $($statusLines | where { $_.StartsWith("? ") }).Count
+    
+    $mergeConflicts=$($statusLines | where { 
+        $_.StartsWith("UU ") -OR 
+        $_.StartsWith("U ") -OR 
+        $_.StartsWith("AA ") -OR 
+        $_.StartsWith("DD ") -OR 
+        $_.StartsWith("AU ") -OR 
+        $_.StartsWith("UD ") -OR 
+        $_.StartsWith("UA ") -OR 
+        $_.StartsWith("DU ")
+    }).Count
+    if(!($isRemoteBranch)) {
+        $output += colorString " ☁ ↑" yellow
+    }
+    if ($isRemoteBranch -and $behind -eq 0 -and $ahead -eq 0 -and $new -eq 0 -and $modify -eq 0 -and $deleted -eq 0 -and $mergeConflicts -eq 0) {
+        $output += colorString " =" Cyan
+    } else {
+        $output += colorString " ↓$behind " Red
+        $output += colorString "↑$ahead " Cyan 
+        if ($new -ne 0 -or $modify -ne 0 -or $deleted -ne 0) {  
+            $output += colorString "+$new " Green 
+            $output += colorString "±$modify " Cyan 
+            $output += colorString "-$deleted"  Red 
         }
-        if ($color -eq "red") {
-            $colorNum = 31
+        if ($mergeConflicts -ne 0) {
+            $output += colorString " !$mergeConflicts" Magenta 
         }
-        if ($color -eq "green") {
-            $colorNum = 32
-        }
-        if ($color -eq "yellow") {
-            $colorNum = 33
-        }
-        if ($color -eq "blue") {
-            $colorNum = 34
-        }
-        if ($color -eq "magenta") {
-            $colorNum = 35
-        }
-        if ($color -eq "cyan") {
-            $colorNum = 36
-        }
-        if ($color -eq "white") {
-            $colorNum = 37
-        }
-        return "`e[$($colorNum)m$str`e[0m"
     }
 
-    function gitStatus() {
-        if (!(Test-Path -Path ".git")) {
-            return
-        }
-        
-        $status=$(git status --short --ahead-behind --branch -uno)
-        $lines=$status.Split([Environment]::NewLine)
-        
-        $firstLine, $statusLines = $lines
-        $statusLines += ""
-
-        $firstLine -match '## (.+)' | out-null
-        $isRemoteBranch = $Matches[1].Split(".").Count -gt 1
-        $branch=$Matches[1].Split(".")[0]
-        '' -match '' | out-null # reset regex result
-
-        $firstLine -match '\[(?:.*)?(?:behind (\d+))\]' | out-null
-        $behind=$($Matches[1] ?? 0)
-        '' -match '' | out-null # reset regex result
-
-        $firstLine -match '\[(?:ahead (\d+)).*\]' | out-null 
-        $ahead=$($Matches[1] ?? 0)
-        '' -match '' | out-null # reset regex result
-
-        $output = ""
-        $output += colorString " ["  Yellow
-        $output += colorString "$branch" Cyan
-        
-        $statusLines = $statusLines | foreach { $_.Trim() }
-
-        $deleted=$($statusLines | where { $_.StartsWith("D ") }).Count
-        $modify=$($statusLines | where { $_.StartsWith("M ") -OR $_.StartsWith("T ") -OR $_.StartsWith("R ") -OR $_.StartsWith("C ") }).Count
-        $new=$($statusLines | where { $_.StartsWith("A ") }).Count
-        $new=$new+$($statusLines | where { $_.StartsWith("?? ") }).Count + $($statusLines | where { $_.StartsWith("? ") }).Count
-        
-        $mergeConflicts=$($statusLines | where { 
-            $_.StartsWith("UU ") -OR 
-            $_.StartsWith("U ") -OR 
-            $_.StartsWith("AA ") -OR 
-            $_.StartsWith("DD ") -OR 
-            $_.StartsWith("AU ") -OR 
-            $_.StartsWith("UD ") -OR 
-            $_.StartsWith("UA ") -OR 
-            $_.StartsWith("DU ")
-        }).Count
-        if(!($isRemoteBranch)) {
-            $output += colorString " ☁ ↑" yellow
-        }
-        if ($isRemoteBranch -and $behind -eq 0 -and $ahead -eq 0 -and $new -eq 0 -and $modify -eq 0 -and $deleted -eq 0 -and $mergeConflicts -eq 0) {
-            $output += colorString " =" Cyan
-        }
-        else {
-            $output += colorString " ↓$behind " Red
-            $output += colorString "↑$ahead " Cyan 
-            if ($new -ne 0 -or $modify -ne 0 -or $deleted -ne 0) {  
-                $output += colorString "+$new " Green 
-                $output += colorString "±$modify " Cyan 
-                $output += colorString "-$deleted"  Red 
-            }
-            if ($mergeConflicts -ne 0) {
-                $output += colorString " !$mergeConflicts" Magenta 
-            }
-        }
-
-        $output += colorString "]" Yellow
-        return $output
-    }
+    $output += colorString "]" Yellow
+    return $output
 }
 
 function prompt {
@@ -148,8 +144,14 @@ function prompt {
     Write-Host " $($CmdPromptUser.Name.split("\")[1]) " -BackgroundColor DarkBlue -ForegroundColor White -NoNewline
     Write-Host " $pwd" -NoNewline
     
-    Write-Host $(gitStatus 5) -NoNewline
+    if ($env:DISABLE_GIT -ne "true") {
+        Write-Host $(gitStatus) -NoNewline
+    }
     return " > "
+}
+
+function gitDisableGitPrompt() {
+    $env:DISABLE_GIT = "true"
 }
 
 Import-Module PSReadLine
@@ -321,10 +323,6 @@ function gitSpeedUp() {
     git repack -ad ;
     git gc --aggressive  --prune=now --force ;
     git status ;
-}
-
-function gitStatus($timeout = 10) {
-    Start-Job -InitializationScript $functions -ScriptBlock { gitStatus } | Wait-Job -TimeOut $timeout | Receive-Job
 }
 
 # general
