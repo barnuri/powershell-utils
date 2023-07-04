@@ -38,19 +38,44 @@ function reloadProfile() {
     $global:VerbosePreference = $SaveVerbosePreference;
 }
 
-function prompt {
-    $host.ui.RawUI.WindowTitle = "Current Folder: $pwd"
-    $CmdPromptUser = [Security.Principal.WindowsIdentity]::GetCurrent();
-    $IsAdmin = (New-Object Security.Principal.WindowsPrincipal ([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+$functions = {
+    
+    function colorString($str, $color) {
+        $colorNum = 37
+        $color = "$color".ToLower()
+        if ($color -eq "black") {
+            $colorNum = 30
+        }
+        if ($color -eq "red") {
+            $colorNum = 31
+        }
+        if ($color -eq "green") {
+            $colorNum = 32
+        }
+        if ($color -eq "yellow") {
+            $colorNum = 33
+        }
+        if ($color -eq "blue") {
+            $colorNum = 34
+        }
+        if ($color -eq "magenta") {
+            $colorNum = 35
+        }
+        if ($color -eq "cyan") {
+            $colorNum = 36
+        }
+        if ($color -eq "white") {
+            $colorNum = 37
+        }
+        return "`e[$($colorNum)m$str`e[0m"
+    }
 
-    Write-host ($(if ($IsAdmin) { '[Admin]' } else { '' })) -BackgroundColor DarkBlue -ForegroundColor White -NoNewline
-    Write-Host " $($CmdPromptUser.Name.split("\")[1]) " -BackgroundColor DarkBlue -ForegroundColor White -NoNewline
-    Write-Host " $pwd" -NoNewline
-
-    ## Git Status
-    if (Test-Path -Path ".git") {
-        $longStatus=$(git status)
-        $status=$(git status --short --ahead-behind --branch)
+    function gitStatus() {
+        if (!(Test-Path -Path ".git")) {
+            return
+        }
+        
+        $status=$(git status --short --ahead-behind --branch -uno)
         $lines=$status.Split([Environment]::NewLine)
         
         $firstLine, $statusLines = $lines
@@ -69,18 +94,17 @@ function prompt {
         $ahead=$($Matches[1] ?? 0)
         '' -match '' | out-null # reset regex result
 
-        Write-Host " ["  -NoNewLine -ForeGroundColor Yellow
-        Write-Host "$branch" -NoNewLine -ForeGroundColor Cyan
+        $output = ""
+        $output += colorString " ["  Yellow
+        $output += colorString "$branch" Cyan
         
-        $dontHaveCommitedFiles = ($($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("no changes added to commit") }).Count + $($longStatus.ToLower().Split([Environment]::NewLine) | where { $_.StartsWith("nothing added to commit") }).Count) -gt 0
-        $statusLines = $statusLines | foreach { If ($dontHaveCommitedFiles) { $_.Trim() } Else { $_ } }
+        $statusLines = $statusLines | foreach { $_.Trim() }
 
         $deleted=$($statusLines | where { $_.StartsWith("D ") }).Count
         $modify=$($statusLines | where { $_.StartsWith("M ") -OR $_.StartsWith("T ") -OR $_.StartsWith("R ") -OR $_.StartsWith("C ") }).Count
         $new=$($statusLines | where { $_.StartsWith("A ") }).Count
-        if($dontHaveCommitedFiles) {
-            $new=$new+$($statusLines | where { $_.StartsWith("?? ") }).Count + $($statusLines | where { $_.StartsWith("? ") }).Count
-        }
+        $new=$new+$($statusLines | where { $_.StartsWith("?? ") }).Count + $($statusLines | where { $_.StartsWith("? ") }).Count
+        
         $mergeConflicts=$($statusLines | where { 
             $_.StartsWith("UU ") -OR 
             $_.StartsWith("U ") -OR 
@@ -92,27 +116,40 @@ function prompt {
             $_.StartsWith("DU ")
         }).Count
         if(!($isRemoteBranch)) {
-            Write-Host " ☁ ↑" -ForeGroundColor yellow -NoNewLine
+            $output += colorString " ☁ ↑" yellow
         }
         if ($isRemoteBranch -and $behind -eq 0 -and $ahead -eq 0 -and $new -eq 0 -and $modify -eq 0 -and $deleted -eq 0 -and $mergeConflicts -eq 0) {
-            Write-Host " =" -ForeGroundColor Cyan -NoNewLine
+            $output += colorString " =" Cyan
         }
         else {
-            Write-Host " ↓$behind " -ForeGroundColor Red -NoNewLine 
-            Write-Host "↑$ahead " -ForeGroundColor Cyan -NoNewLine 
+            $output += colorString " ↓$behind " Red
+            $output += colorString "↑$ahead " Cyan 
             if ($new -ne 0 -or $modify -ne 0 -or $deleted -ne 0) {  
-                Write-Host "+$new " -ForeGroundColor Green -NoNewLine 
-                Write-Host "±$modify " -ForeGroundColor Cyan -NoNewLine 
-                Write-Host "-$deleted" -ForeGroundColor Red -NoNewLine 
+                $output += colorString "+$new " Green 
+                $output += colorString "±$modify " Cyan 
+                $output += colorString "-$deleted"  Red 
             }
             if ($mergeConflicts -ne 0) {
-                Write-Host " !$mergeConflicts" -ForeGroundColor Magenta -NoNewLine 
+                $output += colorString " !$mergeConflicts" Magenta 
             }
         }
 
-        Write-Host "]"  -NoNewLine -ForeGroundColor Yellow
-  }
-  return " > "
+        $output += colorString "]" Yellow
+        return $output
+    }
+}
+
+function prompt {
+    $host.ui.RawUI.WindowTitle = "Current Folder: $pwd"
+    $CmdPromptUser = [Security.Principal.WindowsIdentity]::GetCurrent();
+    $IsAdmin = (New-Object Security.Principal.WindowsPrincipal ([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+
+    Write-Host ($(if ($IsAdmin) { '[Admin]' } else { '' })) -BackgroundColor DarkBlue -ForegroundColor White -NoNewline
+    Write-Host " $($CmdPromptUser.Name.split("\")[1]) " -BackgroundColor DarkBlue -ForegroundColor White -NoNewline
+    Write-Host " $pwd" -NoNewline
+    
+    Write-Host $(gitStatus 1) -NoNewline
+    return " > "
 }
 
 Import-Module PSReadLine
@@ -251,7 +288,7 @@ function gitCommitAndPush() {
     git pull;
     git push;
     if(!$IsRemoteBranch) {
-        Write-Host "$(gitOriginUrl)/pull/new/$currentBranchName" -ForeGroundColor Cyan 
+        Write-Output "`e[36m$(gitOriginUrl)/pull/new/$currentBranchName`e[0m"
     }
 }
 Set-Alias gitp gitCommitAndPush
@@ -284,6 +321,10 @@ function gitSpeedUp() {
     git repack -ad ;
     git gc --aggressive  --prune=now --force ;
     git status ;
+}
+
+function gitStatus($timeout = 10) {
+    Start-Job -InitializationScript $functions -ScriptBlock { gitStatus } | Wait-Job -TimeOut $timeout | Receive-Job
 }
 
 # general
@@ -353,4 +394,3 @@ function minikubeProxy($DOCKER_DISTRO = "Ubuntu-20.04") {
 
 Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
-
