@@ -148,7 +148,7 @@ function prompt {
     Write-Host " $($CmdPromptUser.Name.split("\")[1]) " -BackgroundColor DarkBlue -ForegroundColor White -NoNewline
     Write-Host " $pwd" -NoNewline
     
-    Write-Host $(gitStatus 1) -NoNewline
+    Write-Host $(gitStatus 5) -NoNewline
     return " > "
 }
 
