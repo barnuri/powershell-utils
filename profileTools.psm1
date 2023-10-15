@@ -80,8 +80,8 @@ function gitStatus() {
     $statusLines += ""
 
     $firstLine -match '## (.+)' | out-null
-    $isRemoteBranch = $Matches[1].Split(".").Count -gt 1
-    $branch=$Matches[1].Split(".")[0]
+    $isRemoteBranch = $Matches[1].Split("...").Count -gt 1
+    $branch=$Matches[1].Split("...")[0]
     '' -match '' | out-null # reset regex result
 
     $firstLine -match '\[(?:.*)?(?:behind (\d+))\]' | out-null
