@@ -325,6 +325,12 @@ function gitSpeedUp() {
     git status ;
 }
 
+# dotnet
+function dotnetBuildOnlyErrors() {
+    dotnet build -clp:ErrorsOnly $args
+}
+Set-Alias dotnetBuild dotnetBuildOnlyErrors
+
 # general
 function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
