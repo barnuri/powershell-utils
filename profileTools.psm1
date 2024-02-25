@@ -331,6 +331,16 @@ function dotnetBuildOnlyErrors() {
 }
 Set-Alias dotnetBuild dotnetBuildOnlyErrors
 
+function dotnetTestOnlyErrors() {
+    dotnet test -clp:ErrorsOnly $args
+}
+Set-Alias dotnetTest dotnetTestOnlyErrors
+
+function dotnetRestoreOnlyErrors() {
+    dotnet restore $args 2>&1
+}
+Set-Alias dotnetRestore dotnetRestoreOnlyErrors
+
 # general
 function HistoryFile() { (Get-PSReadlineOption).HistorySavePath }
 Set-Alias hfile HistoryFile
