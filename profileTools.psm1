@@ -288,10 +288,12 @@ function gitCommitAndPush() {
     git add .;
     git commit -am $msg;
     git pull;
-    git push;
-    if(!$IsRemoteBranch) {
-        Write-Output "`e[36m$(gitOriginUrl)/pull/new/$currentBranchName`e[0m"
+    $output=$(git push 2>&1);
+    echo $output
+    if($output -match "remote:\s*(http.*)") {
+        Write-Output "`e[36m$($Matches[1])`e[0m"
     }
+    '' -match '' | out-null # reset regex result
 }
 Set-Alias gitp gitCommitAndPush
 
