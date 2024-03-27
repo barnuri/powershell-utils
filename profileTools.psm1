@@ -283,19 +283,25 @@ function gitCommitAndPush() {
         $msg = "$currentBranchName"
     }
     if(!$IsRemoteBranch) {
-        git push --set-upstream origin $currentBranchName
+        $output=$(git push --set-upstream origin $currentBranchName 2>&1);
+        linkFromPushOutput $output
     }
     git add .;
     git commit -am $msg;
     git pull;
+    
     $output=$(git push 2>&1);
+    linkFromPushOutput $output
+}
+Set-Alias gitp gitCommitAndPush
+
+function linkFromPushOutput($output) {
     echo $output
-    if($output -match "remote:\s*(http.*)") {
+    if($output.Contains("Create a pull request") -and $output -match "remote:\s*(http.*)") {
         Write-Output "`e[36m$($Matches[1])`e[0m"
     }
     '' -match '' | out-null # reset regex result
 }
-Set-Alias gitp gitCommitAndPush
 
 function gitOriginUrl() {
     $repoUrl = $(git config --get remote.origin.url)
