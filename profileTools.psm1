@@ -283,15 +283,12 @@ function gitCommitAndPush() {
         $msg = "$currentBranchName"
     }
     if(!$IsRemoteBranch) {
-        $output=$(git push --set-upstream origin $currentBranchName 2>&1);
-        linkFromPushOutput $output
+        git push --set-upstream origin $currentBranchName;
     }
     git add .;
     git commit -am $msg;
     git pull;
-    
-    $output=$(git push 2>&1);
-    linkFromPushOutput $output
+    git push;
 }
 Set-Alias gitp gitCommitAndPush
 
