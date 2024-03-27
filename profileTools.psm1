@@ -246,6 +246,26 @@ function gitm(
      git merge -X ignore-all-space --no-ff origin/$branchName
 }
 
+function gitMoveToHttps() {
+    $url=$(git remote get-url origin)
+    if ($url.startsWith("http")) {
+        return
+    }
+    $moveToHttp = $url.replace(":","/").replace("git@","https://")
+    git remote set-url origin $moveToHttp
+}
+
+function gitMoveToSSH() {
+    $url=$(git remote get-url origin)
+    if ($url.startsWith("git@")) {
+        return
+    }
+    $baseUrl, $path = $url.replace("https://","git@").replace("http://","git@").split("/")
+    $path = $path -join "/"
+    $moveToSsh = "$($baseUrl):$($path)"
+    git remote set-url origin $moveToSsh
+}
+
 function gitDiff(
     #[ValidateSet([BranchesNames])]
      $branchName='master') {
