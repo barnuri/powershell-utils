@@ -214,7 +214,7 @@ function gitMergeTo(
      $targetBranchName='integration') {
     $currentBranch = $(git branch --show-current)
     git checkout $targetBranchName;
-    git pull ;
+    git pull --no-edit;
     git merge -X ignore-all-space --no-ff $currentBranch ;
     git push ;
     git checkout $currentBranch ;
@@ -225,7 +225,7 @@ function gitc(
     #[ValidateSet([BranchesNames])]
      $branchName='master') {
     git checkout $branchName;
-    git pull 
+    git pull --no-edit;
 }
 # git new branch
 function gitnb($branchName) { git checkout -b $branchName; }
@@ -242,7 +242,7 @@ function gitm(
     #[ValidateSet([BranchesNames])]
      $branchName='master') {
      git fetch origin $branchName;
-     git pull ;
+     git pull --no-edit;
      git merge -X ignore-all-space --no-ff origin/$branchName
 }
 
@@ -294,6 +294,17 @@ function gitCleanCommitsIntoOne() {
     git commit -m "$msg";
     git push -f;
 }
+
+function gitCleanCommitsIntoOneWithoutCommit() {
+    $msg = "$args"
+    $currentBranchName = $(git name-rev --name-only HEAD)
+    if ($msg -eq "") {
+        $msg = "$currentBranchName"
+    }
+    git fetch origin master;
+    git reset $(git merge-base origin/master $(git branch --show-current));
+}
+
 # git commit & push
 function gitCommitAndPush() {
     $msg = "$args"
@@ -307,7 +318,7 @@ function gitCommitAndPush() {
     }
     git add .;
     git commit -am $msg;
-    git pull;
+    git pull --no-edit;
     git push;
 }
 Set-Alias gitp gitCommitAndPush
@@ -338,7 +349,7 @@ function gitOriginUrl() {
 
 function gitEmptyCommit($msg = "empty commit - trigger status checks") {
     git commit --allow-empty -m "$msg";
-    git pull;
+    git pull --no-edit;
     git push;
 }
 
