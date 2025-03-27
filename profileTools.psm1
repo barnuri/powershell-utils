@@ -180,6 +180,7 @@ Set-Alias sshkey sshKeyFunc
 ############# python
 function p3venv() { python3 -m virtualenv venv }
 function p2venv() { python2 -m virtualenv venv }
+function venvActivate() { & ./.venv/Scripts/activate }
 
 # pip install
 function pipi() {
