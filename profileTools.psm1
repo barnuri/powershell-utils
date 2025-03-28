@@ -194,8 +194,15 @@ function pipp() {
     pip install . 
 }
 
-############# git 
-function gitRemoveMergedBranches { git branch --merged | ForEach-Object { $_.Trim() } | Where-Object {$_ -NotMatch "^\*"} | Where-Object {-not ( $_ -Like "*master" )} | ForEach-Object { git branch -d $_ }  }
+############# git
+function gitGetDefaultBranch() {
+    $defaultBranch = $(git symbolic-ref refs/remotes/origin/HEAD --short)
+    $defaultBranch = $defaultBranch.Split("/")[-1]
+    Write-Output $defaultBranch
+}
+function gitRemoveMergedBranches { 
+    git branch --merged | ForEach-Object { $_.Trim() } | Where-Object {$_ -NotMatch "^\*"} | Where-Object {-not ( $_ -Like "*master" )} | ForEach-Object { git branch -d $_ }  
+}
 function getAllBranches() { git branch -a -l --format "%(refname:short)" | ForEach-Object { $_.Split("/")[-1] } | Where-Object { $_ -ne "HEAD" } }
 function gitCleanLocalBranches() {
     git fetch --all --prune ;
@@ -224,27 +231,34 @@ Set-Alias gitmt gitMergeTo
 
 function gitc(
     #[ValidateSet([BranchesNames])]
-     $branchName='master') {
+     $branchName='') {
+    if ($branchName -eq "") {
+        $branchName = $(gitGetDefaultBranch)
+    }
     git checkout $branchName;
     git pull --no-edit;
 }
 # git new branch
 function gitnb($branchName) { git checkout -b $branchName; }
 
-# git new branch from master
+# git new branch from default branch
 function gitnbm($branchName) {
-    git fetch origin master ;
-    git checkout origin/master ;
+    $defaultBranch = $(gitGetDefaultBranch)
+    git fetch origin $defaultBranch ;
+    git checkout origin/$defaultBranch ;
     gitnb $branchName
 }
 
 # git merge
 function gitm(
     #[ValidateSet([BranchesNames])]
-     $branchName='master') {
-     git fetch origin $branchName;
-     git pull --no-edit;
-     git merge -X ignore-all-space --no-ff origin/$branchName
+     $branchName='') {
+    if ($branchName -eq "") {
+        $branchName = $(gitGetDefaultBranch)
+    }
+    git fetch origin $branchName;
+    git pull --no-edit;
+    git merge -X ignore-all-space --no-ff origin/$branchName
 }
 
 function gitMoveToHttps() {
@@ -269,7 +283,10 @@ function gitMoveToSSH() {
 
 function gitDiff(
     #[ValidateSet([BranchesNames])]
-     $branchName='master') {
+     $branchName='') {
+    if ($branchName -eq "") {
+        $branchName = $(gitGetDefaultBranch)
+    }
     git fetch origin $branchName;
     git diff origin/$branchName...$(git branch --show-current) --name-status
 }
@@ -279,18 +296,15 @@ function gitCheckoutFile(
     git fetch origin $branchName;
     git checkout origin/$branchName -- $args
 }
-function gitCheckoutFileFromMaster() {
-    git fetch origin master;
-    git checkout origin/master -- $args
-}
 function gitCleanCommitsIntoOne() {
     $msg = "$args"
     $currentBranchName = $(git name-rev --name-only HEAD)
     if ($msg -eq "") {
         $msg = "$currentBranchName"
     }
-    git fetch origin master;
-    git reset $(git merge-base origin/master $(git branch --show-current));
+    $defaultBranch = $(gitGetDefaultBranch)
+    git fetch origin $defaultBranch;
+    git reset $(git merge-base origin/$defaultBranch $(git branch --show-current));
     git add -A;
     git commit -m "$msg";
     git push -f;
@@ -302,8 +316,9 @@ function gitCleanCommitsIntoOneWithoutCommit() {
     if ($msg -eq "") {
         $msg = "$currentBranchName"
     }
-    git fetch origin master;
-    git reset $(git merge-base origin/master $(git branch --show-current));
+    $defaultBranch = $(gitGetDefaultBranch)
+    git fetch origin $defaultBranch;
+    git reset $(git merge-base origin/$defaultBranch $(git branch --show-current));
 }
 
 # git commit & push
@@ -445,3 +460,4 @@ function minikubeProxy($DOCKER_DISTRO = "Ubuntu-20.04") {
 
 Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
+
