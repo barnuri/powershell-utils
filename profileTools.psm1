@@ -306,6 +306,9 @@ function gitCleanCommitsIntoOne() {
     git fetch origin $defaultBranch;
     git reset $(git merge-base origin/$defaultBranch $(git branch --show-current));
     git add -A;
+    if ($env:GIT_COMMIT_APPEND_BRANCH_NAME -eq "true" -AND $msg -notmatch $currentBranchName) {
+        $msg = "$currentBranchName - $msg"
+    }
     git commit -m "$msg";
     git push -f;
 }
@@ -321,7 +324,6 @@ function gitCleanCommitsIntoOneWithoutCommit() {
     git reset $(git merge-base origin/$defaultBranch $(git branch --show-current));
 }
 
-# git commit & push
 function gitCommitAndPush() {
     $msg = "$args"
     $currentBranchName = $(git name-rev --name-only HEAD)
@@ -331,6 +333,9 @@ function gitCommitAndPush() {
     }
     if(!$IsRemoteBranch) {
         git push --set-upstream origin $currentBranchName;
+    }
+    if ($env:GIT_COMMIT_APPEND_BRANCH_NAME -eq "true" -AND $msg -notmatch $currentBranchName) {
+        $msg = "$currentBranchName - $msg"
     }
     git add .;
     git commit -am $msg;
@@ -364,6 +369,10 @@ function gitOriginUrl() {
 }
 
 function gitEmptyCommit($msg = "empty commit - trigger status checks") {
+    $currentBranchName = $(git name-rev --name-only HEAD)
+    if ($env:GIT_COMMIT_APPEND_BRANCH_NAME -eq "true" -AND $msg -notmatch $currentBranchName) {
+        $msg = "$currentBranchName - $msg"
+    }
     git commit --allow-empty -m "$msg";
     git pull --no-edit;
     git push;
