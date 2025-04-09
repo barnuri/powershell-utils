@@ -319,6 +319,7 @@ function gitCleanCommitsIntoOne() {
     git commit -m "$msg";
     git push -f;
 }
+Set-Alias gitSquash gitCleanCommitsIntoOne
 
 function gitCleanCommitsIntoOneWithoutCommit() {
     $msg = getCommitMsg "$args"
@@ -326,6 +327,7 @@ function gitCleanCommitsIntoOneWithoutCommit() {
     git fetch origin $defaultBranch;
     git reset $(git merge-base origin/$defaultBranch $(git branch --show-current));
 }
+Set-Alias gitSquashWithoutCommit gitCleanCommitsIntoOneWithoutCommit
 
 function gitCommitAndPush() {
     $currentBranchName = $(git name-rev --name-only HEAD)
