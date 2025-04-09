@@ -462,6 +462,15 @@ function minikubeProxy($DOCKER_DISTRO = "Ubuntu-20.04") {
     $(wsl -d "$DOCKER_DISTRO" kubectl config view --raw --flatten --minify) > ~/.kube/config
 }
 
+function readEnvFile($path=".env") {
+    $envFile = Get-Content $path
+    foreach ($line in $envFile) {
+        if ($line -match "^\s*#") { continue } # Skip comments
+        if ($line -match "^\s*$") { continue } # Skip empty lines
+        $key, $value = $line -split '=', 2
+        [System.Environment]::SetEnvironmentVariable($key.Trim(), $value.Trim())
+    }
+}
+
 Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
-
