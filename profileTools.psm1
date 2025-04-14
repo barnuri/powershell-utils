@@ -299,15 +299,23 @@ function gitCheckoutFile(
 
 function getCommitMsg() {
     $msg = "$args"
-    $currentBranchName = $(git name-rev --name-only HEAD)
-    if ($msg -eq "") {
-        $msg = "$currentBranchName"
-    }
-    if ($env:GIT_COMMIT_MSG_APPEND_BRANCH_NAME -eq "true" -AND $msg -notmatch $currentBranchName) {
-        $msg = "$currentBranchName - $msg"
+    $currentBranchName = $(gitCurrentBranchName)
+    $defaultBranch = $(gitGetDefaultBranch)
+    if ($currentBranchName -ne $defaultBranch) {
+        if ($msg -eq "") {
+            $msg = "$currentBranchName"
+        }
+        if ($env:GIT_COMMIT_MSG_APPEND_BRANCH_NAME -eq "true" -AND $msg -notmatch $currentBranchName) {
+            $msg = "$currentBranchName - $msg"
+        }
     }
     $msg = "$env:GIT_COMMIT_MSG_PREFIX$msg$env:GIT_COMMIT_MSG_SUFFIX"
     Write-Output $msg
+}
+
+function gitCurrentBranchName() {
+    $currentBranchName = $(git rev-parse --abbrev-ref HEAD)
+    Write-Output $currentBranchName
 }
 
 function gitCleanCommitsIntoOne() {
@@ -319,7 +327,6 @@ function gitCleanCommitsIntoOne() {
     git commit -m "$msg";
     git push -f;
 }
-Set-Alias gitSquash gitCleanCommitsIntoOne
 
 function gitCleanCommitsIntoOneWithoutCommit() {
     $msg = getCommitMsg "$args"
@@ -327,10 +334,9 @@ function gitCleanCommitsIntoOneWithoutCommit() {
     git fetch origin $defaultBranch;
     git reset $(git merge-base origin/$defaultBranch $(git branch --show-current));
 }
-Set-Alias gitSquashWithoutCommit gitCleanCommitsIntoOneWithoutCommit
 
 function gitCommitAndPush() {
-    $currentBranchName = $(git name-rev --name-only HEAD)
+    $currentBranchName = $(gitCurrentBranchName)
     $IsRemoteBranch=[bool]$(git config branch.$($currentBranchName).merge)
 
     if(!$IsRemoteBranch) {
@@ -476,3 +482,4 @@ function readEnvFile($path=".env") {
 
 Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
+
