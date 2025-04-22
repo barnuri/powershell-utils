@@ -476,10 +476,11 @@ function readEnvFile($path=".env") {
         if ($line -match "^\s*#") { continue } # Skip comments
         if ($line -match "^\s*$") { continue } # Skip empty lines
         $key, $value = $line -split '=', 2
-        [System.Environment]::SetEnvironmentVariable($key.Trim(), $value.Trim())
+        [System.Environment]::SetEnvironmentVariable($key.Trim(), $value.Trim().Trim('"'))
     }
 }
 
 Export-ModuleMember -Function * -Alias * -Variable * -Cmdlet *
 ################# END Profile By BarNuri #################
+
 
