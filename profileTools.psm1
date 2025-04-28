@@ -208,7 +208,7 @@ function gitCleanLocalBranches() {
     git fetch --all --prune ;
     git branch -l --format "%(refname:short)" | ForEach-Object {  git  branch  $_.Trim()  -D }
 }
-function gitCleanIgnoreFiles() { git clean -dfx }
+function gitCleanIgnoreFiles() { git clean -dfx -f }
 
 # Class BranchesNames : System.Management.Automation.IValidateSetValuesGenerator {
 #     [String[]] GetValidValues() {
