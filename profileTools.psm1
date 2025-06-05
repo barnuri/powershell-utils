@@ -196,8 +196,12 @@ function pipp() {
 
 ############# git
 function gitGetDefaultBranch() {
-    $defaultBranch = $(git symbolic-ref refs/remotes/origin/HEAD --short)
-    $defaultBranch = $defaultBranch.Split("/")[-1]
+    try { 
+        $defaultBranch = $(git symbolic-ref refs/remotes/origin/HEAD --short 2>$null)
+        $defaultBranch = $defaultBranch.Split("/")[-1]
+    } catch {
+        $defaultBranch = "master"
+    }
     Write-Output $defaultBranch
 }
 function gitRemoveMergedBranches { 
